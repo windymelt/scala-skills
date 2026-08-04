@@ -124,10 +124,18 @@ Ask the user to:
 Maven Central verifies artifact authenticity with PGP signatures. Create a
 key **per repository**.
 
-**Primary method** — run the bootstrap tool in the repository directory:
+**Primary method** — use the bootstrap tool. First look up its latest
+version on Maven Central (or Scaladex):
 
 ```sh
-cs launch dev.capslock::scala-pgp-bootstrap:0.0.2
+curl -s 'https://repo1.maven.org/maven2/dev/capslock/scala-pgp-bootstrap_3/maven-metadata.xml' \
+  | grep -oP '(?<=<latest>)[^<]+'
+```
+
+Then run it in the repository directory with that version:
+
+```sh
+cs launch dev.capslock::scala-pgp-bootstrap:<latest-version>
 ```
 
 It interactively confirms each step (mostly answering "y") and automates:
