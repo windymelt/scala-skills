@@ -1,47 +1,53 @@
 ---
 name: containerize
 description: >-
-  ScalaプロジェクトをDockerfileを書かずにOCIコンテナイメージ化するスキル。
-  Cloud Native Buildpacks（pack CLI + Paketo builder）と sbt-native-packager を使い、
-  JVMメモリ設定の自動計算込みで実行可能なイメージを生成する。
-  「コンテナ化して」「Dockerイメージにして」「OCIイメージを作って」「pack build」
-  「Buildpackでビルド」などのキーワードで発動する。
+  Containerize a Scala project into an OCI container image without writing a
+  Dockerfile, using Cloud Native Buildpacks (pack CLI + Paketo builder) and
+  sbt-native-packager. The resulting image auto-computes JVM memory settings
+  at startup. Triggers on requests like "containerize this", "build a Docker
+  image", "create an OCI image", "pack build", "コンテナ化して",
+  "Dockerイメージにして", "OCIイメージを作って".
 ---
 
-# Scala プロジェクトの OCI コンテナ化（Cloud Native Buildpacks）
+# Containerizing a Scala Project as an OCI Image (Cloud Native Buildpacks)
 
-Dockerfile を書かずに、Cloud Native Buildpacks (CNB) で sbt プロジェクトを
-OCI コンテナイメージに変換する。JVM のメモリパラメータ（`-Xmx` 等）は
-起動時にコンテナのメモリ制限から自動計算されるため、手動チューニングが不要になる。
+Convert an sbt project into an OCI container image with Cloud Native
+Buildpacks (CNB), without writing a Dockerfile. JVM memory parameters
+(`-Xmx` etc.) are computed automatically at startup from the container's
+memory limit, so no manual tuning is required.
 
-参考: https://blog.3qe.us/entry/2026/07/24/154004
+Reference: https://blog.3qe.us/entry/2026/07/24/154004
 
-## 前提条件
+## Prerequisites
 
-作業前に以下を確認する。欠けていればユーザーに導入を案内する。
+Check the following before starting. If anything is missing, guide the user
+through installing it.
 
-1. Docker デーモンが動作していること（`docker info`）
-2. `pack` CLI がインストールされていること（`pack version`）
-   - 未導入なら https://buildpacks.io/docs/for-platform-operators/how-to/integrate-ci/pack/ を案内する
-3. 対象が sbt プロジェクトであること（`build.sbt` の存在で Paketo sbt buildpack が発動する）
-   - scala-cli / Mill プロジェクトはこのスキルの対象外。その旨を伝えること
+1. The Docker daemon is running (`docker info`)
+2. The `pack` CLI is installed (`pack version`)
+   - If not installed, point the user to
+     https://buildpacks.io/docs/for-platform-operators/how-to/integrate-ci/pack/
+3. The target is an sbt project (the Paketo sbt buildpack detects on the
+   presence of `build.sbt`)
+   - scala-cli and Mill projects are out of scope for this skill; say so
+     explicitly
 
-## 手順
+## Steps
 
-### 1. sbt バージョンの確認
+### 1. Determine the sbt version
 
-`project/build.properties` を読んで sbt のメジャーバージョンを判定する。
-sbt 1 系と 2 系で成果物のパスと必要な設定が異なる（手順 3 参照）。
+Read `project/build.properties` to determine the sbt major version. sbt 1.x
+and 2.x differ in artifact paths and required configuration (see step 3).
 
-### 2. sbt-native-packager の導入
+### 2. Set up sbt-native-packager
 
-`project/plugins.sbt` に追加する（既にあればスキップ）:
+Add to `project/plugins.sbt` (skip if already present):
 
 ```scala
 addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.11.7")
 ```
 
-`build.sbt` の対象プロジェクトで `JavaAppPackaging` を有効化する:
+Enable `JavaAppPackaging` on the target project in `build.sbt`:
 
 ```scala
 lazy val root = project
@@ -49,13 +55,14 @@ lazy val root = project
   .settings(/* ... */)
 ```
 
-エントリポイント（`Compile / mainClass`）が一意に決まらない場合は明示する。
+If the entry point (`Compile / mainClass`) is ambiguous, set it explicitly.
 
-### 3. project.toml の配置
+### 3. Place project.toml
 
-プロジェクトルートに `project.toml` を作成する。
+Create `project.toml` at the project root.
 
-**sbt 2 系の場合**（タスク名と成果物パスがデフォルトと異なるため必須）:
+**For sbt 2.x** (required, because the task name and artifact path differ
+from the buildpack defaults):
 
 ```toml
 [_]
@@ -78,10 +85,10 @@ name = "BP_SBT_BUILT_ARTIFACT"
 value = "target/out/jvm/scala-*/*/universal/*.zip"
 ```
 
-**sbt 1 系の場合**: buildpack のデフォルト
-（`BP_SBT_BUILD_ARGUMENTS=universal:packageBin`、
-`BP_SBT_BUILT_ARTIFACT=target/universal/*.zip`）がそのまま使えるので、
-`exclude` 指定のみの project.toml でよい:
+**For sbt 1.x**: the buildpack defaults
+(`BP_SBT_BUILD_ARGUMENTS=universal:packageBin`,
+`BP_SBT_BUILT_ARTIFACT=target/universal/*.zip`) work as-is, so a
+`project.toml` with only the `exclude` section is sufficient:
 
 ```toml
 [_]
@@ -96,57 +103,61 @@ exclude = [
 ]
 ```
 
-マルチモジュール構成でルート以外のモジュールをビルドする場合は
-`BP_SBT_BUILT_MODULE` でモジュール名を指定する。
+For multi-module builds where the target is not the root module, set the
+module name via `BP_SBT_BUILT_MODULE`.
 
-### 4. ビルド
+### 4. Build
 
 ```bash
-pack build <イメージ名> --builder paketobuildpacks/ubuntu-noble-builder
+pack build <image-name> --builder paketobuildpacks/ubuntu-noble-builder
 ```
 
-- 初回は builder イメージの取得と依存解決が走るため時間がかかる（数分〜）。
-  タイムアウトを長め（10分程度）に設定して実行する
-- ビルド失敗時は buildpack のログに sbt の出力がそのまま出るので、
-  まずローカルで `sbt Universal/packageBin`（sbt 1 なら `sbt universal:packageBin`）が
-  通るかを確認する
+- The first run fetches the builder image and resolves dependencies, so it
+  takes a while (several minutes or more). Use a generous timeout (around
+  10 minutes)
+- On build failure, the buildpack log contains the raw sbt output. First
+  verify that `sbt Universal/packageBin` (or `sbt universal:packageBin` for
+  sbt 1.x) succeeds locally
 
-### 5. 動作確認
+### 5. Verify
 
 ```bash
-docker run --rm -p 8080:8080 <イメージ名>
+docker run --rm -p 8080:8080 <image-name>
 ```
 
-起動ログに `Calculated JVM Memory Configuration: -Xmx...` の行があれば
-メモリ自動設定が機能している。ポート番号はアプリケーションに合わせる。
+If the startup log contains a line like
+`Calculated JVM Memory Configuration: -Xmx...`, automatic memory
+configuration is working. Adjust the port number to match the application.
 
-## オプション設定
+## Optional Settings
 
-必要に応じて `--env` で指定する（`project.toml` の `[[io.buildpacks.build.env]]` でも可）。
+Pass via `--env` as needed (or via `[[io.buildpacks.build.env]]` in
+`project.toml`).
 
-| 目的 | 指定 |
-|------|------|
-| JRE バージョン指定 | `--env BP_JVM_VERSION=21` |
-| JDK ではなく JRE を同梱 | `--env BP_JVM_TYPE=JRE` |
-| jlink でランタイムを最小化 | `--env BP_JVM_JLINK_ENABLED=true` |
-| レジストリへ直接 push | `pack build ghcr.io/<owner>/<name> --publish` |
+| Purpose | Setting |
+|---------|---------|
+| Pin the JRE version | `--env BP_JVM_VERSION=21` |
+| Bundle a JRE instead of a JDK | `--env BP_JVM_TYPE=JRE` |
+| Minimize the runtime with jlink | `--env BP_JVM_JLINK_ENABLED=true` |
+| Push directly to a registry | `pack build ghcr.io/<owner>/<name> --publish` |
 
-Amazon Corretto を使う場合（イメージサイズは大きくなりがち）:
+To use Amazon Corretto (image size tends to be larger):
 
 ```bash
-pack build <イメージ名> \
+pack build <image-name> \
     --builder paketobuildpacks/ubuntu-noble-builder \
     --buildpack docker.io/paketobuildpacks/amazon-corretto \
     --buildpack paketo-buildpacks/java \
     --env BP_JVM_VERSION=21
 ```
 
-## 注意点
+## Caveats
 
-- **UBI 系 builder は避ける**: UBI 8 は glibc の互換性問題で sbt が動作しないことがある。
-  `paketobuildpacks/ubuntu-noble-builder` を既定とする
-- **静的ファイルの同梱**: `src/universal/` に置いたファイルは
-  実行時に `./<プロジェクト名>/` 配下に配置される
-- **実行時の JVM オプション**: `docker run -e JAVA_OPTS=...` で環境変数として
-  渡すだけで読み込まれる。イメージの再ビルドは不要
-- buildpack の詳細設定は https://github.com/paketo-buildpacks/sbt を参照する
+- **Avoid UBI-based builders**: UBI 8 can break sbt due to glibc
+  compatibility issues. Default to `paketobuildpacks/ubuntu-noble-builder`
+- **Bundling static files**: files placed under `src/universal/` end up
+  under `./<project-name>/` at runtime
+- **Runtime JVM options**: pass `docker run -e JAVA_OPTS=...` as an
+  environment variable and it is picked up as-is; no image rebuild needed
+- For detailed buildpack configuration, see
+  https://github.com/paketo-buildpacks/sbt

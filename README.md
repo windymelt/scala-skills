@@ -1,33 +1,36 @@
 # scala-skills
 
-Scala 開発向けの Claude Code スキル集です。プラグインマーケットプレイスとして配布しています。
+A collection of Claude Code skills for Scala development, distributed as a
+plugin marketplace.
 
-## インストール
+## Installation
 
-Claude Code 上で以下を実行します。
+Run the following in Claude Code:
 
 ```
 /plugin marketplace add windymelt/scala-skills
 /plugin install scala-skills@scala-skills
 ```
 
-## スキル一覧
+## Skills
 
-| スキル | 呼び出し | 説明 |
-|--------|----------|------|
-| [containerize](./skills/containerize/SKILL.md) | `/scala-skills:containerize` | Cloud Native Buildpacks で sbt プロジェクトを Dockerfile なしに OCI コンテナイメージ化する |
+| Skill | Invocation | Description |
+|-------|------------|-------------|
+| [containerize](./skills/containerize/SKILL.md) | `/scala-skills:containerize` | Containerize an sbt project into an OCI image with Cloud Native Buildpacks, without writing a Dockerfile |
 
-スキルはキーワード（「コンテナ化して」「Dockerイメージにして」など）でも自動発動します。
+Skills also trigger automatically on relevant keywords (e.g. "containerize
+this", "build a Docker image").
 
-## 構成
+## Layout
 
 ```
 .claude-plugin/
-├── marketplace.json   # マーケットプレイス定義
-└── plugin.json        # プラグイン定義
+├── marketplace.json   # marketplace definition
+└── plugin.json        # plugin definition
 skills/
 └── containerize/
-    └── SKILL.md       # スキル本体
+    └── SKILL.md       # skill body
 ```
 
-スキルを追加する場合は `skills/` 配下にディレクトリを作り、`SKILL.md` を置きます。
+To add a skill, create a directory under `skills/` and place a `SKILL.md`
+in it.

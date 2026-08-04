@@ -5,14 +5,14 @@
     "url": "https://github.com/windymelt"
   },
   "metadata": {
-    "description": "Scala 開発向けの Claude Code スキル集"
+    "description": "A collection of Claude Code skills for Scala development"
   },
   "plugins": [
     {
       "name": "scala-skills",
       "source": "./",
       "displayName": "Scala Skills",
-      "description": "Scala 開発向けのスキル集（OCI コンテナ化など）",
+      "description": "Skills for Scala development (OCI containerization, etc.)",
       "author": {
         "name": "windymelt"
       }

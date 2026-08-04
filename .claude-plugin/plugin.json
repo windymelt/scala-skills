@@ -1,6 +1,6 @@
 {
   "name": "scala-skills",
-  "description": "Scala 開発向けのスキル集（OCI コンテナ化など）",
+  "description": "Skills for Scala development (OCI containerization, etc.)",
   "author": {
     "name": "windymelt",
     "url": "https://github.com/windymelt"
