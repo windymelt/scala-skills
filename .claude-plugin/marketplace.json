@@ -1,0 +1,21 @@
+{
+  "name": "scala-skills",
+  "owner": {
+    "name": "windymelt",
+    "url": "https://github.com/windymelt"
+  },
+  "metadata": {
+    "description": "Scala 開発向けの Claude Code スキル集"
+  },
+  "plugins": [
+    {
+      "name": "scala-skills",
+      "source": "./",
+      "displayName": "Scala Skills",
+      "description": "Scala 開発向けのスキル集（OCI コンテナ化など）",
+      "author": {
+        "name": "windymelt"
+      }
+    }
+  ]
+}
