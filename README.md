@@ -17,6 +17,7 @@ Run the following in Claude Code:
 | Skill | Invocation | Description |
 |-------|------------|-------------|
 | [containerize](./skills/containerize/SKILL.md) | `/scala-skills:containerize` | Containerize an sbt project into an OCI image with Cloud Native Buildpacks, without writing a Dockerfile |
+| [test-tagging](./skills/test-tagging/SKILL.md) | `/scala-skills:test-tagging` | Tag ScalaTest tests and run or exclude specific subsets (slow, heavy, etc.) |
 
 Skills also trigger automatically on relevant keywords (e.g. "containerize
 this", "build a Docker image").
