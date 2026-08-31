@@ -19,6 +19,7 @@ Run the following in Claude Code:
 | [containerize](./skills/containerize/SKILL.md) | `/scala-skills:containerize` | Containerize an sbt project into an OCI image with Cloud Native Buildpacks, without writing a Dockerfile |
 | [test-tagging](./skills/test-tagging/SKILL.md) | `/scala-skills:test-tagging` | Tag ScalaTest tests and run or exclude specific subsets (slow, heavy, etc.) |
 | [publish-library](./skills/publish-library/SKILL.md) | `/scala-skills:publish-library` | Set up automated publishing to Maven Central from GitHub Actions with sbt-ci-release |
+| [sbt-2](./skills/sbt-2/SKILL.md) | `/scala-skills:sbt-2` | Work with sbt 2.x or migrate from 1.x, consulting the official sbt 2.x docs directly |
 
 Skills also trigger automatically on relevant keywords (e.g. "containerize
 this", "build a Docker image").
