@@ -302,6 +302,11 @@ inThisBuild(List(
       url("https://example.com") // homepage / SNS / contact page
     )
   ),
+  scmInfo := Some(ScmInfo(
+    url("https://github.com/<owner>/<repo>"),
+    "scm:git:https://github.com/<owner>/<repo>.git",
+    Some("scm:git:git@github.com:<owner>/<repo>.git")
+  )),
   versionScheme := Some("early-semver")
 ))
 ```
@@ -330,6 +335,11 @@ developers := List(
     url("https://example.com")
   )
 )
+scmInfo := Some(ScmInfo(
+  url("https://github.com/<owner>/<repo>"),
+  "scm:git:https://github.com/<owner>/<repo>.git",
+  Some("scm:git:git@github.com:<owner>/<repo>.git")
+))
 versionScheme := Some("early-semver")
 ```
 
@@ -337,6 +347,11 @@ Notes for both versions:
 
 - Ask the user for the license, developer info, and namespace if they are
   not evident from the repository
+- `scmInfo` is what produces the `<scm>` element in the published POM
+  (sbt does not derive it automatically), and Sonatype Central lists SCM
+  information as a required POM element. The three arguments map to
+  `<url>`, `<connection>`, and `<developerConnection>`; keep the
+  `scm:git:` prefix on the latter two
 - Licenses are `List[(SPDX id, URL)]`; the `License.*` constants from sbt
   librarymanagement may also be used. SPDX ids and reference URLs:
   https://raw.githubusercontent.com/spdx/license-list-data/master/json/licenses.json
