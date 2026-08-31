@@ -515,6 +515,16 @@ uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
   git push origin v0.1.0
   ```
 
+  > **WARNING (for agents): never create or push a release tag without
+  > the user's explicit, per-instance permission.** Creating a signed tag
+  > uses the user's own signing key in their name, and pushing it
+  > triggers an irreversible publication to Maven Central (releases
+  > cannot be unpublished). Neither a general instruction to "set up
+  > releasing" nor permission granted for a previous tag counts as
+  > permission. Before each `git tag` / `git push` of a `v*` tag, state
+  > the exact tag name and target commit, and wait for the user's
+  > approval in that conversation.
+
 ## Prepare the README
 
 Once the first release is out, propose updating the README so that users
