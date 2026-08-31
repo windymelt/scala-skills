@@ -99,8 +99,8 @@ allow quiet syntax); drop them on Scala 2 projects.
 Format the whole codebase once and confirm the check passes:
 
 ```sh
-sbt scalafmtAll scalafmtSbt
-sbt scalafmtCheckAll scalafmtSbtCheck
+sbt 'scalafmtAll; scalafmtSbt'
+sbt 'scalafmtCheckAll; scalafmtSbtCheck'
 ```
 
 ### Set up scalafix
@@ -200,7 +200,7 @@ jobs:
           java-version: 17
       - uses: sbt/setup-sbt@v1
       - name: Check formatting
-        run: sbt scalafmtCheckAll scalafmtSbtCheck
+        run: sbt 'scalafmtCheckAll; scalafmtSbtCheck'
       - name: Check scalafix rules
         run: sbt 'scalafixAll --check'
 
