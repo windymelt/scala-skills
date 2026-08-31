@@ -73,7 +73,10 @@ plugin manages them, so they must not be present:
 
 ### 3. Add publication metadata
 
-At the **very top** of `build.sbt`, add:
+Check the sbt major version first (`project/build.properties`) and use the
+matching notation below.
+
+**For sbt 1.x**, at the **very top** of `build.sbt`, add:
 
 ```scala
 inThisBuild(List(
@@ -93,6 +96,35 @@ inThisBuild(List(
   versionScheme := Some("early-semver")
 ))
 ```
+
+**For sbt 2.x**, align with sbt 2 notation instead of copying the sbt 1
+snippet above:
+
+- Bare settings at the top of `build.sbt` apply to all subprojects in
+  sbt 2, so write the settings directly — do **not** wrap them in
+  `inThisBuild(List(...))` and do not scope them to `ThisBuild`
+- `licenses` changed from `Seq[(String, URL)]` to `Seq[License]`; prefer
+  constants such as `License.MIT` / `License.Apache2`
+- Keys typed as `URL` in sbt 1 (e.g. `homepage`) changed to `URI`; if
+  `url("...")` does not compile, use `uri("...")` instead
+
+```scala
+// top of build.sbt; bare settings are build-wide in sbt 2
+organization := "io.github.example"
+homepage := Some(url("https://github.com/<owner>/<repo>"))
+licenses := List(License.MIT)
+developers := List(
+  Developer(
+    "ghUserName",
+    "Display Name",
+    "email@example.com",
+    url("https://example.com")
+  )
+)
+versionScheme := Some("early-semver")
+```
+
+Notes for both versions:
 
 - Ask the user for the license, developer info, and namespace if they are
   not evident from the repository
