@@ -7,8 +7,8 @@ description: >-
   user token, PGP key bootstrap, the release workflow (snapshot on main
   merge, release on v-tag), repository hardening, binary releases for
   CLI tools (compressed executables, SHA-512 checksums, PGP signatures,
-  provenance attestation), and README setup with a Maven Central version
-  badge. Triggers on requests like
+  provenance attestation), and README setup with Scaladex and Maven
+  Central version badges. Triggers on requests like
   "publish this library to Maven Central", "set up sbt-ci-release",
   "release this library", "ライブラリをパブリッシュしたい",
   "Maven Centralに公開して", "sbt-ci-releaseをセットアップして".
@@ -545,21 +545,36 @@ uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 Once the first release is out, propose updating the README so that users
 can find and depend on the library:
 
-- **Version badge** — use
-  [maven-badges](https://github.com/softwaremill/maven-badges) to show the
-  latest version on Maven Central. The current domain is
-  `maven-badges.sml.io` (the old Heroku domain is retired). Note that the
-  artifact id must include the Scala-version suffix (`_3`, `_2.13`, and
-  for Scala.js e.g. `_sjs1_3`):
+- **Version badges** — add two badges, in this order: the Scaladex badge
+  first, then the Maven Central badge
 
-  ```markdown
-  [![Maven Central](https://maven-badges.sml.io/maven-central/<groupId>/<artifactId>_3/badge.svg)](https://maven-badges.sml.io/maven-central/<groupId>/<artifactId>_3/)
-  ```
+  1. **Scaladex badge** (see the
+     [Scaladex FAQ](https://github.com/scalacenter/scaladex/wiki/FAQ#how-to-include-a-scaladex-badge-in-my-projects-readme)).
+     `<organization>` / `<repository>` are the GitHub coordinates and
+     `<artifact>` is the artifact id **without** the Scala-version suffix:
 
-  The first path segment selects the repository to query — `maven-central`
-  is right for the sbt-ci-release flow (artifacts published via Sonatype
-  Central sync to Maven Central). The badge resolves only after the first
-  proper (non-SNAPSHOT) release has been published and synced
+     ```markdown
+     [![Latest version](https://index.scala-lang.org/<organization>/<repository>/<artifact>/latest.svg)](https://index.scala-lang.org/<organization>/<repository>/<artifact>)
+     ```
+
+  2. **Maven Central badge** — use
+     [maven-badges](https://github.com/softwaremill/maven-badges) to show
+     the latest version on Maven Central. The current domain is
+     `maven-badges.sml.io` (the old Heroku domain is retired). Note that
+     the artifact id must include the Scala-version suffix (`_3`, `_2.13`,
+     and for Scala.js e.g. `_sjs1_3`):
+
+     ```markdown
+     [![Maven Central](https://maven-badges.sml.io/maven-central/<groupId>/<artifactId>_3/badge.svg)](https://maven-badges.sml.io/maven-central/<groupId>/<artifactId>_3/)
+     ```
+
+     The first path segment selects the repository to query —
+     `maven-central` is right for the sbt-ci-release flow (artifacts
+     published via Sonatype Central sync to Maven Central)
+
+  Both badges resolve only after the first proper (non-SNAPSHOT) release
+  has been published and indexed (Scaladex indexes from Maven Central,
+  so it may lag slightly behind the Maven badge)
 
 - **Installation snippet** — the `libraryDependencies` line matching the
   released coordinates:
